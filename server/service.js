@@ -15,7 +15,7 @@ module.exports = (config) => {
     });
   }
 
-  service.put('/register/:servicename/:serviceversion/:serviceport', async (req, res, next) => {
+  service.put('/register/:servicename/:serviceversion/:serviceport', async (req, res) => {
     const { servicename, serviceversion, serviceport } = req.params;
 
     const serviceip = req.connection.remoteAddress.includes(`::`) ? `[${req.connection.remoteAddress}]` : req.connection.remoteAddress;
@@ -25,7 +25,7 @@ module.exports = (config) => {
     return res.json({ result: serviceKey });
   });
 
-  service.delete('/register/:servicename/:serviceversion/:serviceport', async (req, res, next) => {
+  service.delete('/register/:servicename/:serviceversion/:serviceport', async (req, res) => {
     const { servicename, serviceversion, serviceport } = req.params;
 
     const serviceip = req.connection.remoteAddress.includes(`::`) ? `[${req.connection.remoteAddress}]` : req.connection.remoteAddress;
@@ -35,8 +35,13 @@ module.exports = (config) => {
     return res.json({ result: serviceKey });
   });
 
-  service.get('/find/:servicename/:serviceversion', async (req, res, next) => {
-    return next('Not implemented');
+  service.get('/find/:servicename/:serviceversion', async (req, res) => {
+    const { servicename, serviceversion } = req.params;
+
+    const service = serviceRegistry.get(servicename, serviceversion);
+
+    if (!service) return res.status(404).json({ result: 'Service not found '});
+    return res.json(service);
   });
 
   // eslint-disable-next-line no-unused-vars
